@@ -7,13 +7,22 @@ module Wont
 
   def self.initialize path = nil, pull: false
     fail "Already initialized: #{@@path}" if @@path != nil
-    `cd #{@@path} ; git pull` if pull
+    if !path
+      path = `git rev-parse --show-toplevel`
+      path = nil if path == ""
+      if path
+        path = File.join(path, 'ontology_data')
+      end
+    end
+    if !path
+      fail "Invalid path" if path == ""
+    end
     @@path = path
-    @@symbols
     @@commands = []
     @@version = nil  # TODO add version parameter, and implement it
-    kernel.each { |symbol| get_wambda_symbol(symbol) }
-   true
+    `cd #{@@path} ; git pull` if pull
+    KERNEL.each { |symbol| get_wambda_symbol(symbol) }
+    true
   end
 
   def self.add ir_instance
@@ -42,9 +51,8 @@ module Wont
 
   def self.get_wambda_symbol symbol
     fail "Unexpected #{symbol.class}: #{symbol}" unless symbol.is_a?(Symbol)
-    wobj = @@symbols[symbol]
+    wobjs = get_symbol(symbol)
     return wobj if wobj
-    @@symbols[symbol] = true
     paths = Dir["#{data_path}/**/#{symbol}/_#{symbol.to_s.underscore}/*-*.json"]
     uids = Set
     paths.map do |path|
@@ -61,8 +69,7 @@ module Wont
       file.write(instance['accessors']['ruby_code'])
     end
     require_relative(filename)
-    # TODO allow methods also as wambda symbols
-    @@symbols[symbol] = Wambda.const_get(symbol)
+    get_symbol(symbol)
   end
 
   module Helper
@@ -73,6 +80,15 @@ module Wont
 
 
 private:
+  def self.get_symbol symbol
+    begin
+      # TODO allow methods also as wambda symbols
+      Wambda.const_get(symbol)
+    rescue
+      nil
+    end
+  end
+
   def self.apply_filter version, paths
     fail "Not implemented" if version != nil
     paths.sort.last
