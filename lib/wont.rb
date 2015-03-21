@@ -1,5 +1,3 @@
 require "wont/version"
-
-module Wont
-  # Your code goes here...
-end
+require "wont/kernel"
+require "wont/utils"
