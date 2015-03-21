@@ -1,0 +1,11 @@
+{
+  "name": "instance_reference",
+  "uid": "e74ad9e4-eefd-476c-8b67-1b8200d79a58",
+  "version": "0.1.0",
+  "path": "Instance/Wambda/base/instance_reference.rb/e74ad9e4-eefd-476c-8b67-1b8200d79a58__0.1.0.json",
+  "frame": "Wambda",
+  "accessors": {
+    "wambda_path": "base/instance_reference.rb",
+    "ruby_code": "module Wont\n\n\nrequire_wambda 'base/literal.rb'\n\n\nclass InstanceReference < Literal\n  def initialize instance\n    @instance = instance\n  end\n\n  def attr_internal_value\n    @instance.internal_value\n  end\nend\n\n\nend\n"
+  }
+}

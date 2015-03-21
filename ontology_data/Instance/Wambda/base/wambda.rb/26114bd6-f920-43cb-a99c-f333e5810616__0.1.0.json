@@ -1,0 +1,11 @@
+{
+  "name": "wambda",
+  "uid": "26114bd6-f920-43cb-a99c-f333e5810616",
+  "version": "0.1.0",
+  "path": "Instance/Wambda/base/wambda.rb/26114bd6-f920-43cb-a99c-f333e5810616__0.1.0.json",
+  "frame": "Wambda",
+  "accessors": {
+    "wambda_path": "base/wambda.rb",
+    "ruby_code": "module Wont\n\n\n  class Wambda < Instance\n    def initialize src = nil\n      super(src)\n    end\n\n    def valid?\n      super && ruby_source != '' && wambda_path != ''\n    end\n\n    def instance_head_chain\n      [instance_filename] + wambda_path.split('/').reverse\n    end\n\n\n    def self.create_instance_from_rb filename, wambda_path\n      name = File.basename(filename).chomp('.rb')\n      ruby_code = File.read(filename)\n      new({'wambda_path' => wambda_path, 'ruby_code' => ruby_code}.to_ii(name, Wont::VERSION))\n    end\n  end\n\n\nend\n"
+  }
+}

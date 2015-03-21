@@ -1,0 +1,11 @@
+{
+  "name": "space",
+  "uid": "7be71271-f5ae-4e5f-a886-6f6d0f5e8ade",
+  "version": "0.1.0",
+  "path": "Instance/Wambda/base/space.rb/7be71271-f5ae-4e5f-a886-6f6d0f5e8ade__0.1.0.json",
+  "frame": "Wambda",
+  "accessors": {
+    "wambda_path": "base/space.rb",
+    "ruby_code": "module Wont\n\n\nclass Space < Instance\nend\n\n\nend\n"
+  }
+}

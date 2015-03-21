@@ -1,0 +1,11 @@
+{
+  "name": "basic_literal",
+  "uid": "eea1ae28-75ec-4b75-9ea8-81e50a6e1057",
+  "version": "0.1.0",
+  "path": "Instance/Wambda/base/basic_literal.rb/eea1ae28-75ec-4b75-9ea8-81e50a6e1057__0.1.0.json",
+  "frame": "Wambda",
+  "accessors": {
+    "wambda_path": "base/basic_literal.rb",
+    "ruby_code": "module Wont\n\n\nmodule BasicLiteral\n  def valid?; true; end\n  def attr_internal_value; self; end\n  def assign_uid! recursive = true; nil; end\nend\n\n\nend\n\n\nclass Hash\n  include Wont::BasicLiteral\nend\n\nclass Array\n  include Wont::BasicLiteral\nend\n\nclass String\n  include Wont::BasicLiteral\nend\n\nclass Numeric\n  include Wont::BasicLiteral\nend\n\nclass FalseClass\n  include Wont::BasicLiteral\nend\n\nclass TrueClass\n  include Wont::BasicLiteral\nend\n\nclass NilClass\n  include Wont::BasicLiteral\nend\n"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "literal",
+  "uid": "0e174183-f83a-44be-b675-dd58b39f4286",
+  "version": "0.1.0",
+  "path": "Instance/Wambda/base/literal.rb/0e174183-f83a-44be-b675-dd58b39f4286__0.1.0.json",
+  "frame": "Wambda",
+  "accessors": {
+    "wambda_path": "base/literal.rb",
+    "ruby_code": "module Wont\n\n\nrequire_wambda 'base/basic_literal'\n\n\nclass Literal < Instance\n  include BasicLiteral\n  def valid?; false; end\n  def attr_internal_value\n    {'_type' => self.class, '_value' => self}\n  end\nend\n\n\nend\n"
+  }
+}

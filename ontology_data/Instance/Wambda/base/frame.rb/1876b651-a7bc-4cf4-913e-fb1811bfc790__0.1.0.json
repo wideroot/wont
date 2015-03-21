@@ -1,0 +1,11 @@
+{
+  "name": "frame",
+  "uid": "1876b651-a7bc-4cf4-913e-fb1811bfc790",
+  "version": "0.1.0",
+  "path": "Instance/Wambda/base/frame.rb/1876b651-a7bc-4cf4-913e-fb1811bfc790__0.1.0.json",
+  "frame": "Wambda",
+  "accessors": {
+    "wambda_path": "base/frame.rb",
+    "ruby_code": "module Wont\n\n\nrequire_wambda 'base/space'\n\n\nclass Frame < Space\nend\n\n\nend\n"
+  }
+}
