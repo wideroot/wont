@@ -30,6 +30,7 @@ module Wont
     @@version = nil  # TODO add version parameter, and implement it
     `cd #{@@path} ; git pull` if pull
     warn "initialized: #{@@path}"
+    load_wambda_base
     true
   end
 
@@ -66,18 +67,7 @@ module Wont
     JSON.parse(File.read(path))
   end
 
-=begin
-  def self.get_wambda_symbol symbol
-    fail "not init" unless initialized?
-    wobj = get_symbol(symbol)
-    return wobj if wobj
-    require_wambda(symbol.to_s.underscore)
-    get_symbol(symbol)
-  end
-=end
 
-
-  # helpers
   def self.get_wambda_id_from_string identifier
     fail "not init" unless initialized?
     if  ( identifier.is_a?(String)
@@ -92,102 +82,32 @@ module Wont
   end
 
 
-  def self.load_base_from_code
-=begin
-    # TODO require_relative instance
-    # TODO require_relative wambda
-    # TODO forall...
-    fail "not init" unless initialized?
-    si = nil
-    begin
-      si = get_wambda_symbol(:Instance)
-    rescue => ex # TODO rescue only when Instance is not found ...
-      warn "got #{ex}"
-      warn ex.backtrace.join("\n")
+  def self.load_base_from_lib
+    fail "Already initialized: #{@@path}" if initialized?
+    require_relative('./base/instance.rb')
+    require_relative('./base/wambda.rb')
+    Dir["./base/**/*.rb"].each do |file|
+      wambda_path = File.join('_base', File.basename(file))
+      instance = Wambda.create_instance_from_rb(file, wambda_path)
+      add(instance)
     end
-    fail "instance exists" if si
-    basedir = File.join(File.dirname(__FILE__), 'base')
-    instance = File.join(basedir, 'instance.rb')
-    uid = new_uid
-    version = [0,0,0].join(".")
-    filename = "#{uid}__#{version}.json"
-    path = File.join("Instance", "_instance", filename)
-    i = { path:       path,
-          name:       'instance',
-          uid:        uid,
-          version:    '0.0.0',
-          frame:      :Frame,
-          accessors:  { ruby_code: File.read(instance) },
-    }
-    perform_command([:add_instance, i])
-    get_symbol(:Instance)
-    Dir["#{base_dir}/**/*.rb"].each do |basefile|
-      # TODO !!!
-    end
-    true
-=end
+    revision = `git rev-parse --verify HEAD`.strip
+    commit("load_base_from_code #{pwd}, HEAD: #{revision}")
   end
 
-  # TODO capture NameError: uninitialized constant...
 
 
 private
-=begin
-  def self.load_wambda_symbol symbol
-    fail "Unexpected #{symbol.class}: #{symbol}" unless symbol.is_a?(Symbol)
-    path = symbol.to_s.split('::')[1..-1]
-    paths = Dir["#{data_dir}/**/#{symbol}/_#{symbol.to_s.underscore}/*__*.json"]
-    warn "symbol: #{paths}"
-    uids = Set.new
-    paths.map do |path|
-      uid, _, version = File.basename(path).rpartition('__')
-      version = version.split('.')
-      version << path
-      uids.add(uid)
-    end
-    fail "more than one instance candidate: #{uids.to_a}" if uids.size > 1
-    path = apply_filter(@@version, paths)
-    return false unless path  # "not found wambda symbol `#{symbol}'"
-    instance = JSON.parse(File.read(path))
-    filename = wambda_path(symbol)
-    FileUtils::mkdir_p(File.dirname(filename))
-    File.open(filename, File::WRONLY|File::TRUNC|File::CREAT, 0644) do |file|
-      transform_ruby_code(file.write(instance['accessors']['ruby_code']))
-    end
-    fail "require_relative #{filename} returned false" if !require_relative(filename)
-    true
+  def self.load_wambda_base
+    # TODO load instance, load wambda
+    # require_wambda...
   end
-
-  def self.get_symbol symbol
-    # TODO allow methods also
-    begin
-      self.const_get(symbol)
-    rescue
-      nil
-    end
-  end
-=end
-
 
   def self.apply_filter version, paths
     fail "Not implemented" if version != nil
     paths.sort.last
   end
 
-=begin
-  def self.wambda_path symbol
-    File.join(wambda_dir, symbol.to_s + '.rb')
-  end
-
-  def self.wambda_dir
-    File.join(data_dir, ".wambda-symbol-cache__#{@@version}")
-  end
-
-  def self.transform_ruby_code ruby_code
-    ruby_code
-  end
-
-=end
 
   def self.data_dir
     File.join(@@path, "ontology_data")
