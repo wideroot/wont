@@ -1,40 +1,40 @@
 module Wont
 
 
-class BasicLiteral < w(:Space)
+module BasicLiteral
   def valid?; true; end
   def attr_internal_value; self; end
   def assign_uid! recursive = true; nil; end
 end
 
 
+end
+
+
 class Hash
-  include BasicLiteral
+  include Wont::BasicLiteral
 end
 
 class Array
-  include BasicLiteral
+  include Wont::BasicLiteral
 end
 
 class String
-  include BasicLiteral
+  include Wont::BasicLiteral
 end
 
 class Numeric
-  include BasicLiteral
+  include Wont::BasicLiteral
 end
 
 class FalseClass
-  include BasicLiteral
+  include Wont::BasicLiteral
 end
 
 class TrueClass
-  include BasicLiteral
+  include Wont::BasicLiteral
 end
 
 class NilClass
-  include BasicLiteral
-end
-
-
+  include Wont::BasicLiteral
 end

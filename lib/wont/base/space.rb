@@ -1,7 +1,4 @@
-module Wambda
-
-
-require_wambda :Instance
+module Wont
 
 
 class Space < Instance

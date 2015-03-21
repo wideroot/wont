@@ -18,14 +18,13 @@ class Instance
   end
 
 
-  def initialize src = nil
-    @new = @updated = true
+  def initialize src, is_new: false
     if src == nil
       src = {
-        uid:        nil,
-        version:    "0.0.0",
-        name:       nil,
-        accessors:  {},
+        'uid'       => nil,
+        'version'   => "0.0.0",
+        'name'      => nil,
+        'accessors' => {},
       }
     end
     # TODO add an extend mechanism
@@ -33,12 +32,17 @@ class Instance
     # @_method_aliases {}
 
     # index fields
-    @uid = src[:uid]
-    @version = src[:version].split('.')
-    @name = src[:name]
+    @uid = src['uid']
+    @version = src['version'].split('.')
+    @name = src['name']
 
     # @accessors[field] = value s.t. value.to_w? == value
-    @accessors = src[:accessors]
+    @accessors = src['accessors']
+
+    # internal variables
+    @uid = nil if is_new
+    @updated = @new = uid == nil
+    warn inspect
   end
 
 
@@ -61,13 +65,14 @@ class Instance
   def new_minor!; @version[1] += 1; end
 
 
-  def new       ; @new; end
+  def new?      ; @new; end
   def updated?  ; @updated; end
 
 
   def valid?
     # TODO names should be more restricted
-    name != nil && name.size > 0 && @accessors.all { |i| i.valid? }
+    # typecheck v with k...
+    name != nil && name.size > 0 && @accessors.all? { |_, v| v.valid? }
   end
 
   def valid!
@@ -100,7 +105,7 @@ class Instance
 
   def method_missing symbol, *args, &block
     s = symbol.to_s
-    warn s
+    #warn "method_missing: #{s}"
 
     # *__set
     wid = accessor_symbol_setter(s)
@@ -137,7 +142,7 @@ protected
 
 
   def internal_value
-    {name: name, uid: uid, version: version}
+    {'name' => name, 'uid' => uid, 'version' => version}
   end
 
   def attr_internal_value
@@ -145,40 +150,52 @@ protected
   end
 
   def internal_representation
+    s = frame.to_s
+    fail "#{self} frame is not Wont::..." unless s.start_with? 'Wont::'
+    s = s['Wont::'.size .. -1]
     i = internal_value
-    i[:path]      = instance_path
-    i[:frame]     = frame
-    i[:accessors] = Hash[@accessors.map { |k,e| [k, e.attr_internal_value] }]
+    i['path']       = instance_path
+    i['frame']      = s
+    i['accessors']  = Hash[@accessors.map { |k,e| [k, e.attr_internal_value] }]
+    i
   end
 
-  def instance_path
+
 
   def instance_filename
     "#{uid}__#{version}.json"
   end
-  def instance_path_chain
-    [instance_filename, name] + instance_frame_chain
+
+  def instance_head_chain
+    [instance_filename, name]
   end
-  def instance_frame_chain
+
+  def instance_tail_chain
     chain = [frame]
     while chain.last.superframe
       chain << chain.last.superframe
     end
     chain
   end
-  def instance_paths
+
+  def instance_path_chain
+    instance_head_chain + instance_tail_chain
+  end
+
+  def instance_path
     chain = instance_path_chain
-    File.join(chain.reverse.map { |i| i.to_s.rpartition('::').last })
+    File.join(chain.reverse.map { |i| i.to_s.rpartition(/::/).last })
   end
 
 
   def reset_uid!
     @uid = nil
+    @updated = @new = true
   end
 
   def assign_uid! recursive = true
     if recursive
-      accessors.each { |k,e| e.assign_uid!(recursive: recursive) }
+      @accessors.each { |k,e| e.assign_uid!(recursive: recursive) }
     end
     @uid = Wont::new_uid unless @uid
   end
@@ -192,11 +209,13 @@ private
 
   def accessor_symbol_getter string
     string.extend(Chomps)
+    #puts "asg #{string}: #{string.chomps('__get', '')}"
     Wont.get_wambda_id_from_string(string.chomps('__get', ''))
   end
 
   def accessor_symbol_setter string
     string.extend(Chomps)
+    #puts "ass #{string}: #{string.chomps('__set', '=')}"
     Wont.get_wambda_id_from_string(string.chomps('__set', '='))
   end
 
@@ -204,9 +223,8 @@ private
     # \pre: postfix are ordered by desc length
     def chomps(*postfixs)
       postfixs.each do |postfix|
-        return true if postfix.empty?
         s = chomp(postfix)
-        return s if s.size != size
+        return s if s.size != size || postfix.empty?
       end
       nil
     end
@@ -214,4 +232,30 @@ private
 end
 
 
+  def self.internal_representation_instance name: nil, version: nil, accessors: {}
+    version = "0.0.0" unless version
+    { 'uid'       => nil,
+      'name'      => name,
+      'version'   => version,
+      'accessors' => accessors,
+    }
+  end
+
+
 end
+
+
+class Hash
+  def to_ii name = nil, version = nil
+    Wont::internal_representation_instance(
+      name:       name,
+      version:    version,
+      accessors:  self,
+    )
+  end
+end
+
+# TODO 
+# create frames usin an object as prototype
+# include, extend, class methods, instance methods, singleton methods...
+# static type...

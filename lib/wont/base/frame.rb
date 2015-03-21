@@ -1,6 +1,7 @@
-module Wambda
+module Wont
 
-wrequire :Space
+
+require_wambda 'base/space'
 
 
 class Frame < Space
