@@ -41,7 +41,7 @@ module Wont
     fail "not init" unless initialized?
     warn "commit !"
     @@commands.each { |command| perform_command(command) }
-    # XXX `cd #{data_dir} ; git commit -m #{Shellwords.escape(message)}`
+    `cd #{data_dir} ; git commit -m #{Shellwords.escape(message)}`
     warn "commit: #{message}"
   end
 
