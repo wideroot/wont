@@ -1,3 +1,5 @@
+/wont/ontology_data/.wambda__cache*
+
 *.gem
 *.rbc
 /.config
