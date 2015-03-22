@@ -15,12 +15,9 @@ module Wont
 
   def self.initialize path = nil, pull: false, load_base: true
     fail "Already initialized: #{@@path}" if initialized?
-    if !path
-      path = `git rev-parse --show-toplevel`.strip
-    end
-    path = nil if path == ""
-    if !path
-      fail "Invalid path" if path == ""
+    path = get_path unless path
+    if !path || path.length <= 0
+      fail "Invalid path"
     end
     @@path = path
     @@commands = []
@@ -76,6 +73,7 @@ module Wont
   end
 
 
+  # helpers 
   def self.create_instances_from_baselib
     fail "not init" unless initialized?
     dir = instance_path(File.join('Instance', 'Wambda', 'base'))
@@ -231,5 +229,13 @@ private
     File.open(filename, File::WRONLY|File::TRUNC|File::CREAT, 0644) do |file|
       file.write(string)
     end
+  end
+
+private
+  def self.get_path
+    path = File.join(ENV['HOME'], '.wont')
+    path if Dir.exists?(path)
+    path = `git rev-parse --show-toplevel`.strip
+    path = nil if path == ""
   end
 end
