@@ -234,7 +234,7 @@ private
 private
   def self.get_path
     path = File.join(ENV['HOME'], '.wont')
-    path if Dir.exists?(path)
+    return path if Dir.exists?(path)
     path = `git rev-parse --show-toplevel`.strip
     path = nil if path == ""
   end
